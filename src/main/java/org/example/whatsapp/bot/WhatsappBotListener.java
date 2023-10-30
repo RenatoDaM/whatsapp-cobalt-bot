@@ -7,9 +7,11 @@ import it.auties.whatsapp.model.info.MessageInfo;
 import it.auties.whatsapp.model.message.standard.TextMessage;
 import org.example.whatsapp.command.CommandManager;
 import org.example.whatsapp.enumerations.RegisterPhaseEnum;
+import org.example.whatsapp.register.student.RegistrationManager;
 
 @RegisterListener
 public record WhatsappBotListener(Whatsapp whatsapp) implements Listener {
+    static RegistrationManager registrationManager = new RegistrationManager();
     static boolean isRegistering = false;
     static String name;
     static String email;
@@ -22,30 +24,13 @@ public record WhatsappBotListener(Whatsapp whatsapp) implements Listener {
             return;
         }
 
-        if (isRegistering) {
-            switch (registerPhase) {
-                case NOME:
-                    if (info.chat().newestMessage().get().message().textWithNoContextMessage().isPresent() && !info.chat().newestMessage().get().fromMe()) {
-                        name = info.chat().newestMessage().get().message().textWithNoContextMessage().get();
-                        registerPhase = RegisterPhaseEnum.EMAIL;
-                        whatsapp.sendMessage(info.chatJid(), "Agora digite o seu e-mail.");
-                    }
-                    break;
-
-                case EMAIL:
-                    if (info.chat().newestMessage().get().message().textWithNoContextMessage().isPresent() && !info.chat().newestMessage().get().fromMe()) {
-                        email = info.chat().newestMessage().get().message().textWithNoContextMessage().get();
-                        checkInformations(info);
-                    }
-                    break;
-            }
-        }
+        registrationManager.processMessage(whatsapp, info);
 
         CommandManager.instance()
                 .findCommand(textMessage.text())
                 .ifPresent(command -> {
                     command.onCommand(whatsapp, info);
-                    if (command.command().equals("/registrar")) isRegistering = true;
+                    if (command.command().equals("/registrar")) registrationManager.isRegistering = true;
                 });
     }
 
