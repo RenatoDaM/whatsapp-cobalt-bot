@@ -1,0 +1,5 @@
+org\example\whatsapp\command\Command.class
+org\example\whatsapp\command\CommandManager.class
+org\example\whatsapp\bot\WhatsappBot.class
+org\example\whatsapp\command\HelloCommand.class
+org\example\whatsapp\bot\WhatsappBotListener.class
